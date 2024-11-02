@@ -53,4 +53,4 @@ mod name;
 mod parse;
 
 pub use name::DbFieldName;
-pub use parse::*;
+pub use parse::{ParseFieldError, ParseRawFieldError};
