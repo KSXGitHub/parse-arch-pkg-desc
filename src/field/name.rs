@@ -14,6 +14,12 @@ use subenum::subenum;
         derive(AsRefStr, Display, EnumString, IntoStaticStr), // strum traits
         strum(use_phf),
     ),
+    SrcInfoBaseFieldName(
+        doc = "Field name that only appears in the pkgbase section of a .SRCINFO file.",
+        derive(Debug, Clone, Copy, PartialEq, Eq), // core traits
+        derive(AsRefStr, Display, EnumString, IntoStaticStr), // strum traits
+        strum(use_phf),
+    ),
 )]
 pub enum AnyFieldName {
     #[subenum(DbFieldName(strum(serialize = "FILENAME")))]
@@ -28,6 +34,12 @@ pub enum AnyFieldName {
         SrcInfoHeaderFieldName(strum(serialize = "pkgbase"))
     )]
     Base,
+    #[subenum(SrcInfoBaseFieldName(strum(serialize = "pkgver")))]
+    UpstreamVersion,
+    #[subenum(SrcInfoBaseFieldName(strum(serialize = "pkgrel")))]
+    PackageRelease,
+    #[subenum(SrcInfoBaseFieldName(strum(serialize = "epoch")))]
+    Epoch,
     #[subenum(DbFieldName(strum(serialize = "VERSION")))]
     Version,
     #[subenum(DbFieldName(strum(serialize = "DESC")))]
