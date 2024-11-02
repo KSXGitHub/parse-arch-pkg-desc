@@ -1,5 +1,5 @@
 use crate::{
-    field::{FieldName, ParsedField},
+    field::{DbFieldName, ParsedField},
     value,
 };
 
@@ -19,14 +19,14 @@ macro_rules! def_traits {
             $(
                 $(#[$scalar_attrs])*
                 fn $scalar_name(&self) -> Option<value::$scalar_value_type<'a>> {
-                    self.query_raw_text(ParsedField::new(FieldName::$scalar_field_name))
+                    self.query_raw_text(ParsedField::new(DbFieldName::$scalar_field_name))
                         .map(value::$scalar_value_type::new)
                 }
             )*
             $(
                 $(#[$list_attrs])*
                 fn $list_name(&self) -> Option<value::$list_value_type<&'a str>> {
-                    self.query_raw_text(ParsedField::new(FieldName::$list_field_name))
+                    self.query_raw_text(ParsedField::new(DbFieldName::$list_field_name))
                         .map(value::$list_value_type::new)
                 }
             )*
@@ -37,14 +37,14 @@ macro_rules! def_traits {
             $(
                 $(#[$scalar_attrs])*
                 fn $scalar_name_mut(&mut self) -> Option<value::$scalar_value_type<'a>> {
-                    self.query_raw_text_mut(ParsedField::new(FieldName::$scalar_field_name))
+                    self.query_raw_text_mut(ParsedField::new(DbFieldName::$scalar_field_name))
                         .map(value::$scalar_value_type::new)
                 }
             )*
             $(
                 $(#[$list_attrs])*
                 fn $list_name_mut(&mut self) -> Option<value::$list_value_type<&'a str>> {
-                    self.query_raw_text_mut(ParsedField::new(FieldName::$list_field_name))
+                    self.query_raw_text_mut(ParsedField::new(DbFieldName::$list_field_name))
                         .map(value::$list_value_type::new)
                 }
             )*

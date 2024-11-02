@@ -21,13 +21,14 @@ path = "src/lib.rs"
 [features]
 default = []
 parking_lot = ["std", "dep:parking_lot"]
-std = ["strum/std"]
+std = ["strum/std", "subenum/std"]
 
 [dependencies]
 derive_more = { version = "1.0.0", default-features = false, features = ["as_ref", "deref", "display", "error"] }
 parking_lot = { version = "0.12.3", optional = true }
 pipe-trait = "0.4.0"
 strum = { version = "0.26.3", default-features = false, features = ["derive", "phf"] }
+subenum = { version = "1.1.0" , default-features = false, features = ["error_trait"] }
 
 [dev-dependencies]
 pretty_assertions = "1.4.1"

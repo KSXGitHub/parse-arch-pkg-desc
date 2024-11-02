@@ -1,5 +1,5 @@
 use super::QueryMut;
-use crate::field::{FieldName, ParsedField, RawField};
+use crate::field::{DbFieldName, ParsedField, RawField};
 
 /// [Query](QueryMut) with a cache.
 #[derive(Debug, Clone)]
@@ -59,7 +59,7 @@ impl<'a> MemoQuerier<'a> {
 
     /// Private function for testing the internal cache.
     #[doc(hidden)]
-    pub fn __has_cache(&self, field: FieldName) -> bool {
+    pub fn __has_cache(&self, field: DbFieldName) -> bool {
         self.cache.get(&field).is_some()
     }
 }
@@ -71,7 +71,7 @@ impl<'a> QueryMut<'a> for MemoQuerier<'a> {
         }
 
         while let Some((raw_field, value)) = self.next_entry() {
-            let Ok(parsed_field) = raw_field.try_as_parsed_name::<FieldName>() else {
+            let Ok(parsed_field) = raw_field.try_as_parsed_name::<DbFieldName>() else {
                 continue;
             };
             let value = if value.is_empty() { None } else { Some(value) };
@@ -104,9 +104,9 @@ macro_rules! def_cache {
         )*}
 
         impl<'a> Cache<'a> {
-            fn get(&self, field: &FieldName) -> Option<Option<&'a str>> {
+            fn get(&self, field: &DbFieldName) -> Option<Option<&'a str>> {
                 match field {$(
-                    FieldName::$field => match self.$field {
+                    DbFieldName::$field => match self.$field {
                         Ok(value) => Some(Some(value)),
                         Err(CacheErr::OccupiedWithNone) => Some(None),
                         Err(CacheErr::Unoccupied) => None,
@@ -114,10 +114,10 @@ macro_rules! def_cache {
                 )*}
             }
 
-            fn add(&mut self, field: &FieldName, value: Option<&'a str>) {
+            fn add(&mut self, field: &DbFieldName, value: Option<&'a str>) {
                 match (field, value) {$(
-                    (FieldName::$field, Some(value)) => self.$field = Ok(value),
-                    (FieldName::$field, None) => self.$field = Err(CacheErr::OccupiedWithNone),
+                    (DbFieldName::$field, Some(value)) => self.$field = Ok(value),
+                    (DbFieldName::$field, None) => self.$field = Err(CacheErr::OccupiedWithNone),
                 )*}
             }
         }
@@ -133,7 +133,7 @@ macro_rules! def_cache {
         #[test]
         fn test_cache_fields() {$({
             use pretty_assertions::assert_eq;
-            let field = &FieldName::$field;
+            let field = &DbFieldName::$field;
             let mut cache = Cache::default();
             assert_eq!(cache.get(field), None);
             cache.add(field, None);

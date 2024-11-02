@@ -1,6 +1,6 @@
 use core::ops::Not;
 use parse_arch_pkg_desc::{
-    field::FieldName,
+    field::DbFieldName,
     query::{MemoQuerier, QueryMut},
     value::{Architecture, Dependency},
 };
@@ -12,20 +12,20 @@ const TEXT: &str = include_str!("fixtures/gnome-shell.desc");
 fn query() {
     // first querier
     let mut querier = MemoQuerier::new(TEXT);
-    assert!(querier.__has_cache(FieldName::FileName).not());
-    assert!(querier.__has_cache(FieldName::Name).not());
-    assert!(querier.__has_cache(FieldName::Description).not());
-    assert!(querier.__has_cache(FieldName::Architecture).not());
-    assert!(querier.__has_cache(FieldName::MakeDependencies).not());
+    assert!(querier.__has_cache(DbFieldName::FileName).not());
+    assert!(querier.__has_cache(DbFieldName::Name).not());
+    assert!(querier.__has_cache(DbFieldName::Description).not());
+    assert!(querier.__has_cache(DbFieldName::Architecture).not());
+    assert!(querier.__has_cache(DbFieldName::MakeDependencies).not());
 
     // load a fresh item
     let name = querier.name_mut().unwrap();
     assert_eq!(name.as_str(), "gnome-shell");
-    assert!(querier.__has_cache(FieldName::FileName));
-    assert!(querier.__has_cache(FieldName::Name));
-    assert!(querier.__has_cache(FieldName::Description).not());
-    assert!(querier.__has_cache(FieldName::Architecture).not());
-    assert!(querier.__has_cache(FieldName::MakeDependencies).not());
+    assert!(querier.__has_cache(DbFieldName::FileName));
+    assert!(querier.__has_cache(DbFieldName::Name));
+    assert!(querier.__has_cache(DbFieldName::Description).not());
+    assert!(querier.__has_cache(DbFieldName::Architecture).not());
+    assert!(querier.__has_cache(DbFieldName::MakeDependencies).not());
 
     // load a cached item
     let file_name = querier.file_name_mut().unwrap();
@@ -38,11 +38,11 @@ fn query() {
     let mut architecture = querier.architecture_mut().unwrap().into_iter();
     assert_eq!(architecture.next(), Some(Architecture("x86_64")));
     assert_eq!(architecture.next(), None);
-    assert!(querier.__has_cache(FieldName::FileName));
-    assert!(querier.__has_cache(FieldName::Name));
-    assert!(querier.__has_cache(FieldName::Description));
-    assert!(querier.__has_cache(FieldName::Architecture));
-    assert!(querier.__has_cache(FieldName::MakeDependencies).not());
+    assert!(querier.__has_cache(DbFieldName::FileName));
+    assert!(querier.__has_cache(DbFieldName::Name));
+    assert!(querier.__has_cache(DbFieldName::Description));
+    assert!(querier.__has_cache(DbFieldName::Architecture));
+    assert!(querier.__has_cache(DbFieldName::MakeDependencies).not());
 
     // load another cache item
     let description = querier.description_mut().unwrap();
@@ -72,11 +72,11 @@ fn query() {
     assert_eq!(make_dependencies.next(), Some(Dependency("meson")));
     assert_eq!(make_dependencies.next(), Some(Dependency("sassc")));
     assert_eq!(make_dependencies.next(), None);
-    assert!(querier.__has_cache(FieldName::FileName));
-    assert!(querier.__has_cache(FieldName::Name));
-    assert!(querier.__has_cache(FieldName::Description));
-    assert!(querier.__has_cache(FieldName::Architecture));
-    assert!(querier.__has_cache(FieldName::MakeDependencies));
+    assert!(querier.__has_cache(DbFieldName::FileName));
+    assert!(querier.__has_cache(DbFieldName::Name));
+    assert!(querier.__has_cache(DbFieldName::Description));
+    assert!(querier.__has_cache(DbFieldName::Architecture));
+    assert!(querier.__has_cache(DbFieldName::MakeDependencies));
 
     // load items that don't exist
     assert!(querier.conflicts_mut().is_none());
@@ -91,20 +91,20 @@ fn query() {
 
     // second querier
     let mut querier = MemoQuerier::new(TEXT);
-    assert!(querier.__has_cache(FieldName::FileName).not());
-    assert!(querier.__has_cache(FieldName::Name).not());
-    assert!(querier.__has_cache(FieldName::Description).not());
-    assert!(querier.__has_cache(FieldName::Architecture).not());
-    assert!(querier.__has_cache(FieldName::MakeDependencies).not());
+    assert!(querier.__has_cache(DbFieldName::FileName).not());
+    assert!(querier.__has_cache(DbFieldName::Name).not());
+    assert!(querier.__has_cache(DbFieldName::Description).not());
+    assert!(querier.__has_cache(DbFieldName::Architecture).not());
+    assert!(querier.__has_cache(DbFieldName::MakeDependencies).not());
 
     // load items that don't exist, which should fill the cache
     assert!(querier.conflicts_mut().is_none());
     assert!(querier.provides_mut().is_none());
-    assert!(querier.__has_cache(FieldName::FileName));
-    assert!(querier.__has_cache(FieldName::Name));
-    assert!(querier.__has_cache(FieldName::Description));
-    assert!(querier.__has_cache(FieldName::Architecture));
-    assert!(querier.__has_cache(FieldName::MakeDependencies));
+    assert!(querier.__has_cache(DbFieldName::FileName));
+    assert!(querier.__has_cache(DbFieldName::Name));
+    assert!(querier.__has_cache(DbFieldName::Description));
+    assert!(querier.__has_cache(DbFieldName::Architecture));
+    assert!(querier.__has_cache(DbFieldName::MakeDependencies));
 
     // load the very first item
     let file_name = querier.file_name_mut().unwrap();
@@ -125,25 +125,25 @@ fn query_std_mutex() {
     use pipe_trait::Pipe;
     use std::sync::Mutex;
 
-    fn has_cache(querier: &Mutex<MemoQuerier>, field: FieldName) -> bool {
+    fn has_cache(querier: &Mutex<MemoQuerier>, field: DbFieldName) -> bool {
         querier.lock().unwrap().__has_cache(field)
     }
 
     let querier = TEXT.pipe(MemoQuerier::new).pipe(Mutex::new);
-    assert!(has_cache(&querier, FieldName::FileName).not());
-    assert!(has_cache(&querier, FieldName::Name).not());
-    assert!(has_cache(&querier, FieldName::Description).not());
-    assert!(has_cache(&querier, FieldName::Architecture).not());
-    assert!(has_cache(&querier, FieldName::MakeDependencies).not());
+    assert!(has_cache(&querier, DbFieldName::FileName).not());
+    assert!(has_cache(&querier, DbFieldName::Name).not());
+    assert!(has_cache(&querier, DbFieldName::Description).not());
+    assert!(has_cache(&querier, DbFieldName::Architecture).not());
+    assert!(has_cache(&querier, DbFieldName::MakeDependencies).not());
 
     // load a fresh item
     let name = querier.name().unwrap();
     assert_eq!(name.as_str(), "gnome-shell");
-    assert!(has_cache(&querier, FieldName::FileName));
-    assert!(has_cache(&querier, FieldName::Name));
-    assert!(has_cache(&querier, FieldName::Description).not());
-    assert!(has_cache(&querier, FieldName::Architecture).not());
-    assert!(has_cache(&querier, FieldName::MakeDependencies).not());
+    assert!(has_cache(&querier, DbFieldName::FileName));
+    assert!(has_cache(&querier, DbFieldName::Name));
+    assert!(has_cache(&querier, DbFieldName::Description).not());
+    assert!(has_cache(&querier, DbFieldName::Architecture).not());
+    assert!(has_cache(&querier, DbFieldName::MakeDependencies).not());
 
     // load a cached item
     let file_name = querier.file_name().unwrap();
@@ -156,11 +156,11 @@ fn query_std_mutex() {
     let mut architecture = querier.architecture().unwrap().into_iter();
     assert_eq!(architecture.next(), Some(Architecture("x86_64")));
     assert_eq!(architecture.next(), None);
-    assert!(has_cache(&querier, FieldName::FileName));
-    assert!(has_cache(&querier, FieldName::Name));
-    assert!(has_cache(&querier, FieldName::Description));
-    assert!(has_cache(&querier, FieldName::Architecture));
-    assert!(has_cache(&querier, FieldName::MakeDependencies).not());
+    assert!(has_cache(&querier, DbFieldName::FileName));
+    assert!(has_cache(&querier, DbFieldName::Name));
+    assert!(has_cache(&querier, DbFieldName::Description));
+    assert!(has_cache(&querier, DbFieldName::Architecture));
+    assert!(has_cache(&querier, DbFieldName::MakeDependencies).not());
 
     // load another cache item
     let description = querier.description().unwrap();
@@ -190,11 +190,11 @@ fn query_std_mutex() {
     assert_eq!(make_dependencies.next(), Some(Dependency("meson")));
     assert_eq!(make_dependencies.next(), Some(Dependency("sassc")));
     assert_eq!(make_dependencies.next(), None);
-    assert!(has_cache(&querier, FieldName::FileName));
-    assert!(has_cache(&querier, FieldName::Name));
-    assert!(has_cache(&querier, FieldName::Description));
-    assert!(has_cache(&querier, FieldName::Architecture));
-    assert!(has_cache(&querier, FieldName::MakeDependencies));
+    assert!(has_cache(&querier, DbFieldName::FileName));
+    assert!(has_cache(&querier, DbFieldName::Name));
+    assert!(has_cache(&querier, DbFieldName::Description));
+    assert!(has_cache(&querier, DbFieldName::Architecture));
+    assert!(has_cache(&querier, DbFieldName::MakeDependencies));
 
     // load items that don't exist
     assert!(querier.conflicts().is_none());
@@ -215,25 +215,25 @@ fn query_parking_lot_mutex() {
     use parse_arch_pkg_desc::query::Query;
     use pipe_trait::Pipe;
 
-    fn has_cache(querier: &Mutex<MemoQuerier>, field: FieldName) -> bool {
+    fn has_cache(querier: &Mutex<MemoQuerier>, field: DbFieldName) -> bool {
         querier.lock().__has_cache(field)
     }
 
     let querier = TEXT.pipe(MemoQuerier::new).pipe(Mutex::new);
-    assert!(has_cache(&querier, FieldName::FileName).not());
-    assert!(has_cache(&querier, FieldName::Name).not());
-    assert!(has_cache(&querier, FieldName::Description).not());
-    assert!(has_cache(&querier, FieldName::Architecture).not());
-    assert!(has_cache(&querier, FieldName::MakeDependencies).not());
+    assert!(has_cache(&querier, DbFieldName::FileName).not());
+    assert!(has_cache(&querier, DbFieldName::Name).not());
+    assert!(has_cache(&querier, DbFieldName::Description).not());
+    assert!(has_cache(&querier, DbFieldName::Architecture).not());
+    assert!(has_cache(&querier, DbFieldName::MakeDependencies).not());
 
     // load a fresh item
     let name = querier.name().unwrap();
     assert_eq!(name.as_str(), "gnome-shell");
-    assert!(has_cache(&querier, FieldName::FileName));
-    assert!(has_cache(&querier, FieldName::Name));
-    assert!(has_cache(&querier, FieldName::Description).not());
-    assert!(has_cache(&querier, FieldName::Architecture).not());
-    assert!(has_cache(&querier, FieldName::MakeDependencies).not());
+    assert!(has_cache(&querier, DbFieldName::FileName));
+    assert!(has_cache(&querier, DbFieldName::Name));
+    assert!(has_cache(&querier, DbFieldName::Description).not());
+    assert!(has_cache(&querier, DbFieldName::Architecture).not());
+    assert!(has_cache(&querier, DbFieldName::MakeDependencies).not());
 
     // load a cached item
     let file_name = querier.file_name().unwrap();
@@ -246,11 +246,11 @@ fn query_parking_lot_mutex() {
     let mut architecture = querier.architecture().unwrap().into_iter();
     assert_eq!(architecture.next().map(|x| x.as_str()), Some("x86_64"));
     assert_eq!(architecture.next().map(|x| x.as_str()), None);
-    assert!(has_cache(&querier, FieldName::FileName));
-    assert!(has_cache(&querier, FieldName::Name));
-    assert!(has_cache(&querier, FieldName::Description));
-    assert!(has_cache(&querier, FieldName::Architecture));
-    assert!(has_cache(&querier, FieldName::MakeDependencies).not());
+    assert!(has_cache(&querier, DbFieldName::FileName));
+    assert!(has_cache(&querier, DbFieldName::Name));
+    assert!(has_cache(&querier, DbFieldName::Description));
+    assert!(has_cache(&querier, DbFieldName::Architecture));
+    assert!(has_cache(&querier, DbFieldName::MakeDependencies).not());
 
     // load another cache item
     let description = querier.description().unwrap();
@@ -280,11 +280,11 @@ fn query_parking_lot_mutex() {
     assert_eq!(make_dependencies.next(), Some(Dependency("meson")));
     assert_eq!(make_dependencies.next(), Some(Dependency("sassc")));
     assert_eq!(make_dependencies.next(), None);
-    assert!(has_cache(&querier, FieldName::FileName));
-    assert!(has_cache(&querier, FieldName::Name));
-    assert!(has_cache(&querier, FieldName::Description));
-    assert!(has_cache(&querier, FieldName::Architecture));
-    assert!(has_cache(&querier, FieldName::MakeDependencies));
+    assert!(has_cache(&querier, DbFieldName::FileName));
+    assert!(has_cache(&querier, DbFieldName::Name));
+    assert!(has_cache(&querier, DbFieldName::Description));
+    assert!(has_cache(&querier, DbFieldName::Architecture));
+    assert!(has_cache(&querier, DbFieldName::MakeDependencies));
 
     // load items that don't exist
     assert!(querier.conflicts().is_none());

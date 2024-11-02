@@ -1,5 +1,4 @@
 use derive_more::{AsRef, Deref};
-use strum::{AsRefStr, Display, EnumString, IntoStaticStr};
 
 /// Field of a package description.
 #[derive(Debug, Clone, Copy, Eq, PartialEq)] // core traits
@@ -30,11 +29,11 @@ impl<'a> RawField<'a> {
 }
 
 /// Parsed field of a package description.
-pub type ParsedField = Field<FieldName>;
+pub type ParsedField = Field<DbFieldName>;
 
 impl ParsedField {
     /// Create a new [`ParsedField`].
-    pub const fn new(name: FieldName) -> Self {
+    pub const fn new(name: DbFieldName) -> Self {
         Field(name)
     }
 
@@ -44,64 +43,14 @@ impl ParsedField {
     }
 }
 
-impl From<FieldName> for ParsedField {
-    fn from(value: FieldName) -> Self {
+impl From<DbFieldName> for ParsedField {
+    fn from(value: DbFieldName) -> Self {
         ParsedField::new(value)
     }
 }
 
-/// Field name of a package description.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)] // core traits
-#[derive(AsRefStr, Display, EnumString, IntoStaticStr)] // strum traits
-#[strum(use_phf)]
-pub enum FieldName {
-    #[strum(serialize = "FILENAME")]
-    FileName,
-    #[strum(serialize = "NAME")]
-    Name,
-    #[strum(serialize = "BASE")]
-    Base,
-    #[strum(serialize = "VERSION")]
-    Version,
-    #[strum(serialize = "DESC")]
-    Description,
-    #[strum(serialize = "GROUPS")]
-    Groups,
-    #[strum(serialize = "CSIZE")]
-    CompressedSize,
-    #[strum(serialize = "ISIZE")]
-    InstalledSize,
-    #[strum(serialize = "MD5SUM")]
-    Md5Checksum,
-    #[strum(serialize = "SHA256SUM")]
-    Sha256Checksum,
-    #[strum(serialize = "PGPSIG")]
-    PgpSignature,
-    #[strum(serialize = "URL")]
-    Url,
-    #[strum(serialize = "LICENSE")]
-    License,
-    #[strum(serialize = "ARCH")]
-    Architecture,
-    #[strum(serialize = "BUILDDATE")]
-    BuildDate,
-    #[strum(serialize = "PACKAGER")]
-    Packager,
-    #[strum(serialize = "DEPENDS")]
-    Dependencies,
-    #[strum(serialize = "MAKEDEPENDS")]
-    MakeDependencies,
-    #[strum(serialize = "CHECKDEPENDS")]
-    CheckDependencies,
-    #[strum(serialize = "OPTDEPENDS")]
-    OptionalDependencies,
-    #[strum(serialize = "PROVIDES")]
-    Provides,
-    #[strum(serialize = "CONFLICTS")]
-    Conflicts,
-    #[strum(serialize = "REPLACES")]
-    Replaces,
-}
-
+mod name;
 mod parse;
+
+pub use name::DbFieldName;
 pub use parse::*;
