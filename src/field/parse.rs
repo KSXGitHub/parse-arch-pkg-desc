@@ -82,11 +82,11 @@ impl<'a> RawField<'a> {
     /// Try converting a [`RawField`] into a [`Field<Name>`].
     ///
     /// ```
-    /// # use parse_arch_pkg_desc::field::{FieldName, ParsedField, RawField};
+    /// # use parse_arch_pkg_desc::field::{DbFieldName, ParsedField, RawField};
     /// # use pretty_assertions::assert_eq;
     /// let raw_field = RawField::parse_raw("%NAME%").unwrap();
     /// let parsed_field: ParsedField = raw_field.try_as_parsed_name().unwrap();
-    /// assert_eq!(parsed_field.name(), &FieldName::Name);
+    /// assert_eq!(parsed_field.name(), &DbFieldName::Name);
     /// ```
     pub fn try_as_parsed_name<Name>(
         &'a self,
