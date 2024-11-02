@@ -8,8 +8,8 @@ use subenum::subenum;
         derive(AsRefStr, Display, EnumString, IntoStaticStr), // strum traits
         strum(use_phf),
     ),
-    SrcInfoFieldName(
-        doc = "Field name of a .SRCINFO file.",
+    SrcInfoHeaderFieldName(
+        doc = "Field name of a header of a .SRCINFO file.",
         derive(Debug, Clone, Copy, PartialEq, Eq), // core traits
         derive(AsRefStr, Display, EnumString, IntoStaticStr), // strum traits
         strum(use_phf),
@@ -20,12 +20,12 @@ pub enum AnyFieldName {
     FileName,
     #[subenum(
         DbFieldName(strum(serialize = "NAME")),
-        SrcInfoFieldName(strum(serialize = "pkgname"))
+        SrcInfoHeaderFieldName(strum(serialize = "pkgname"))
     )]
     Name,
     #[subenum(
         DbFieldName(strum(serialize = "BASE")),
-        SrcInfoFieldName(strum(serialize = "pkgbase"))
+        SrcInfoHeaderFieldName(strum(serialize = "pkgbase"))
     )]
     Base,
     #[subenum(DbFieldName(strum(serialize = "VERSION")))]
