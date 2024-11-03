@@ -40,6 +40,8 @@ pub enum AnyFieldName {
     PackageRelease,
     #[subenum(SrcInfoBaseFieldName(strum(serialize = "epoch")))]
     Epoch,
+    #[subenum(SrcInfoBaseFieldName(strum(serialize = "validpgpkeys")))]
+    ValidPgpKeys,
     #[subenum(DbFieldName(strum(serialize = "VERSION")))]
     Version,
     #[subenum(DbFieldName(strum(serialize = "DESC")))]
