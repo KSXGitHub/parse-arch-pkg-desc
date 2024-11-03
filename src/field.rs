@@ -52,5 +52,5 @@ impl From<DbFieldName> for ParsedField {
 mod name;
 mod parse;
 
-pub use name::DbFieldName;
+pub use name::{DbFieldName, SrcInfoBaseFieldName, SrcInfoHeaderFieldName};
 pub use parse::{ParseFieldError, ParseRawFieldError};
