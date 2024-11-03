@@ -20,6 +20,12 @@ use subenum::subenum;
         derive(AsRefStr, Display, EnumString, IntoStaticStr), // strum traits
         strum(use_phf),
     ),
+    SrcInfoDerivativeFieldName(
+        doc = "Field name of a section of a `.SRCINFO` file.",
+        derive(Debug, Clone, Copy, PartialEq, Eq), // core traits
+        derive(AsRefStr, Display, EnumString, IntoStaticStr), // strum traits
+        strum(use_phf),
+    ),
 )]
 pub enum AnyFieldName {
     #[subenum(DbFieldName(strum(serialize = "FILENAME")))]
@@ -44,7 +50,10 @@ pub enum AnyFieldName {
     ValidPgpKeys,
     #[subenum(DbFieldName(strum(serialize = "VERSION")))]
     Version,
-    #[subenum(DbFieldName(strum(serialize = "DESC")))]
+    #[subenum(
+        DbFieldName(strum(serialize = "DESC")),
+        SrcInfoDerivativeFieldName(strum(serialize = "pkgdesc"))
+    )]
     Description,
     #[subenum(DbFieldName(strum(serialize = "GROUPS")))]
     Groups,
@@ -58,9 +67,19 @@ pub enum AnyFieldName {
     Sha256Checksum,
     #[subenum(DbFieldName(strum(serialize = "PGPSIG")))]
     PgpSignature,
-    #[subenum(DbFieldName(strum(serialize = "URL")))]
+    #[subenum(
+        DbFieldName(strum(serialize = "URL")),
+        SrcInfoDerivativeFieldName(strum(serialize = "url"))
+    )]
     Url,
-    #[subenum(DbFieldName(strum(serialize = "LICENSE")))]
+    #[subenum(SrcInfoDerivativeFieldName(strum(serialize = "install")))]
+    Install,
+    #[subenum(SrcInfoDerivativeFieldName(strum(serialize = "changelog")))]
+    ChangeLog,
+    #[subenum(
+        DbFieldName(strum(serialize = "LICENSE")),
+        SrcInfoDerivativeFieldName(strum(serialize = "license"))
+    )]
     License,
     #[subenum(DbFieldName(strum(serialize = "ARCH")))]
     Architecture,
