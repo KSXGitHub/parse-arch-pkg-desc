@@ -9,13 +9,13 @@ use subenum::subenum;
         strum(use_phf),
     ),
     SrcInfoHeaderFieldName(
-        doc = "Field name of a header of a .SRCINFO file.",
+        doc = "Field name of a header of a `.SRCINFO` file.",
         derive(Debug, Clone, Copy, PartialEq, Eq), // core traits
         derive(AsRefStr, Display, EnumString, IntoStaticStr), // strum traits
         strum(use_phf),
     ),
     SrcInfoBaseFieldName(
-        doc = "Field name that only appears in the pkgbase section of a .SRCINFO file.",
+        doc = "Field name that only appears in the `pkgbase` section of a `.SRCINFO` file.",
         derive(Debug, Clone, Copy, PartialEq, Eq), // core traits
         derive(AsRefStr, Display, EnumString, IntoStaticStr), // strum traits
         strum(use_phf),
