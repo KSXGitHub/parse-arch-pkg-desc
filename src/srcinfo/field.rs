@@ -90,50 +90,33 @@ impl<Architecture> From<FieldName> for ParsedField<Architecture> {
     }
 }
 
-macro_rules! def_downcast {
-    ($(
-        $(#[$attrs:meta])*
-        $method:ident: $input:ident -> $output:ident {$($variant:ident)*}
-    )*) => {$(
-        impl $input {
-            $(#[$attrs])*
-            pub fn $method(self) -> Option<$output> {
-                match self {
-                    $($input::$variant => Some($output::$variant),)*
+macro_rules! def_cast {
+    ($(($up:ident $down:ident) {$($variant:ident)*})*) => {$(
+        impl From<$up> for Option<$down> {
+            fn from(input: $up) -> Self {
+                match input {
+                    $($up::$variant => Some($down::$variant),)*
                     _ => None,
                 }
             }
         }
 
-        impl TryFrom<$input> for $output {
-            type Error = $input;
-            fn try_from(input: $input) -> Result<Self, Self::Error> {
-                input.$method().ok_or(input)
+        impl TryFrom<$up> for $down {
+            type Error = $up;
+            fn try_from(input: $up) -> Result<Self, Self::Error> {
+                Option::<Self>::from(input).ok_or(input)
             }
         }
-    )*};
-}
 
-macro_rules! def_upcast {
-    ($(
-        $(#[$attrs:meta])*
-        $method:ident: $input:ident -> $output:ident {$($variant:ident)*}
-    )*) => {$(
-        impl $input {
-            $(#[$attrs])*
-            pub fn $method(self) -> $output {
-                match self {
-                    $($input::$variant => $output::$variant,)*
+        impl From<$down> for $up {
+            fn from(input: $down) -> Self {
+                match input {
+                    $($down::$variant => $up::$variant,)*
                 }
             }
         }
 
-        impl From<$input> for $output {
-            fn from(input: $input) -> Self {
-                input.$method()
-            }
-        }
-    )*};
+    )*}
 }
 
 macro_rules! def_field_name {
@@ -157,14 +140,6 @@ macro_rules! def_field_name {
             $( #[strum(serialize = $base_name)] $base_variant, )*
             $( #[strum(serialize = $shared_name)] $shared_variant, )*
         }
-        def_downcast! {
-            /// Convert a [`FieldName`] into a [`HeaderFieldName`].
-            into_header: FieldName -> HeaderFieldName {$($header_variant)*}
-            /// Convert a [`FieldName`] into a [`BaseOnlyFieldName`].
-            into_base_only: FieldName -> BaseOnlyFieldName {$($base_variant)*}
-            /// Convert a [`FieldName`] into a [`SectionFieldName`].
-            into_section: FieldName -> SectionFieldName {$($base_variant)* $($shared_variant)*}
-        }
 
         /// Header field name of a package description.
         #[derive(Debug, Clone, Copy, PartialEq, Eq)] // core traits
@@ -173,10 +148,6 @@ macro_rules! def_field_name {
         pub enum HeaderFieldName {
             $( #[strum(serialize = $header_name)] $header_variant, )*
         }
-        def_upcast! {
-            /// Convert a [`HeaderFieldName`] into a [`FieldName`].
-            into_field_name: HeaderFieldName -> FieldName {$($header_variant)*}
-        }
 
         /// Field name of the `pkgbase` section a package description.
         #[derive(Debug, Clone, Copy, PartialEq, Eq)] // core traits
@@ -184,12 +155,6 @@ macro_rules! def_field_name {
         #[strum(use_phf)]
         pub enum BaseOnlyFieldName {
             $( #[strum(serialize = $base_name)] $base_variant, )*
-        }
-        def_upcast! {
-            /// Convert a [`BaseOnlyFieldName`] into a [`FieldName`].
-            into_field_name: BaseOnlyFieldName -> FieldName {$($base_variant)*}
-            /// Convert a [`BaseOnlyFieldName`] into a [`SectionFieldName`].
-            into_section: BaseOnlyFieldName -> SectionFieldName {$($base_variant)*}
         }
 
         /// Field name of any section a package description.
@@ -200,13 +165,12 @@ macro_rules! def_field_name {
             $( #[strum(serialize = $base_name)] $base_variant, )*
             $( #[strum(serialize = $shared_name)] $shared_variant, )*
         }
-        def_upcast! {
-            /// Convert a [`SectionFieldName`] into a [`FieldName`].
-            into_field_name: SectionFieldName -> FieldName {$($base_variant)* $($shared_variant)*}
-        }
-        def_downcast! {
-            /// Convert a [`SectionFieldName`] into a [`BaseOnlyFieldName`].
-            into_base_only: SectionFieldName -> BaseOnlyFieldName {$($base_variant)*}
+
+        def_cast! {
+            (FieldName HeaderFieldName) {$($header_variant)*}
+            (FieldName BaseOnlyFieldName) {$($base_variant)*}
+            (FieldName SectionFieldName) {$($base_variant)* $($shared_variant)*}
+            (SectionFieldName BaseOnlyFieldName) {$($base_variant)*}
         }
     };
 }
