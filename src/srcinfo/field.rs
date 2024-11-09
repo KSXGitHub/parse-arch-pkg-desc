@@ -107,9 +107,9 @@ def_alias! {
     /// Parsed field of a header of a `.SRCINFO` file.
     HeaderField = HeaderFieldName;
     /// Parsed field of the `pkgbase` section of a `.SRCINFO` file.
-    BaseOnlyField = BaseOnlyFieldName;
-    /// Parsed field of any section of a `.SRCINFO` file.
-    SectionField = SectionFieldName;
+    BaseField = BaseFieldName;
+    /// Parsed field of the `pkgname` section of a `.SRCINFO` file.
+    DerivativeField = DerivativeFieldName;
 }
 
 macro_rules! def_cast {
@@ -174,24 +174,24 @@ macro_rules! def_field_name {
         #[derive(Debug, Clone, Copy, PartialEq, Eq)] // core traits
         #[derive(AsRefStr, Display, EnumString, IntoStaticStr)] // strum traits
         #[strum(use_phf)]
-        pub enum BaseOnlyFieldName {
+        pub enum BaseFieldName {
             $( #[strum(serialize = $base_name)] $base_variant, )*
+            $( #[strum(serialize = $shared_name)] $shared_variant, )*
         }
 
-        /// Field name of any section of a `.SRCINFO` file.
+        /// Field name of the `pkgname` section of a `.SRCINFO` file.
         #[derive(Debug, Clone, Copy, PartialEq, Eq)] // core traits
         #[derive(AsRefStr, Display, EnumString, IntoStaticStr)] // strum traits
         #[strum(use_phf)]
-        pub enum SectionFieldName {
-            $( #[strum(serialize = $base_name)] $base_variant, )*
+        pub enum DerivativeFieldName {
             $( #[strum(serialize = $shared_name)] $shared_variant, )*
         }
 
         def_cast! {
             (AnyFieldName HeaderFieldName) {$($header_variant)*}
-            (AnyFieldName BaseOnlyFieldName) {$($base_variant)*}
-            (AnyFieldName SectionFieldName) {$($base_variant)* $($shared_variant)*}
-            (SectionFieldName BaseOnlyFieldName) {$($base_variant)*}
+            (AnyFieldName BaseFieldName) {$($base_variant)* $($shared_variant)*}
+            (AnyFieldName DerivativeFieldName) {$($shared_variant)*}
+            (BaseFieldName DerivativeFieldName) {$($shared_variant)*}
         }
     };
 }
@@ -270,10 +270,10 @@ pub trait FieldName:
 
 impl sealed::Sealed for AnyFieldName {}
 impl FieldName for AnyFieldName {}
-impl sealed::Sealed for BaseOnlyFieldName {}
-impl FieldName for BaseOnlyFieldName {}
-impl sealed::Sealed for SectionFieldName {}
-impl FieldName for SectionFieldName {}
+impl sealed::Sealed for BaseFieldName {}
+impl FieldName for BaseFieldName {}
+impl sealed::Sealed for DerivativeFieldName {}
+impl FieldName for DerivativeFieldName {}
 
 mod parse;
 pub use parse::*;
