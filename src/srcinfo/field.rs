@@ -1,3 +1,7 @@
+use core::{
+    fmt::{Debug, Display},
+    str::FromStr,
+};
 use strum::{AsRefStr, Display, EnumString, IntoStaticStr};
 
 /// Field of a `.SRCINFO` file.
@@ -237,6 +241,39 @@ def_field_name! {
         Sha512Checksums = "sha512sums"
     }
 }
+
+mod sealed {
+    pub trait Sealed {}
+}
+
+/// Field name of a `.SRCINFO` file.
+pub trait FieldName:
+    sealed::Sealed
+    + Debug
+    + Display
+    + Clone
+    + Copy
+    + PartialEq
+    + Eq
+    + AsRef<str>
+    + FromStr
+    + for<'r> TryFrom<&'r str>
+    + Into<&'static str>
+    + TryFrom<AnyFieldName>
+    + Into<AnyFieldName>
+{
+    /// Convert the field name into an instance of [`AnyFieldName`]
+    fn to_any(self) -> AnyFieldName {
+        self.into()
+    }
+}
+
+impl sealed::Sealed for AnyFieldName {}
+impl FieldName for AnyFieldName {}
+impl sealed::Sealed for BaseOnlyFieldName {}
+impl FieldName for BaseOnlyFieldName {}
+impl sealed::Sealed for SectionFieldName {}
+impl FieldName for SectionFieldName {}
 
 mod parse;
 pub use parse::*;
