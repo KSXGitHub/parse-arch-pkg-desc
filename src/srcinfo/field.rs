@@ -1,6 +1,6 @@
 use strum::{AsRefStr, Display, EnumString, IntoStaticStr};
 
-/// Field of a package description.
+/// Field of a `.SRCINFO` file.
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub struct Field<Name, Architecture> {
     name: Name,
@@ -70,7 +70,7 @@ impl<'a, Name> Field<Name, &'a str> {
     }
 }
 
-/// Raw string field of a package description.
+/// Raw string field of a `.SRCINFO` file.
 pub type RawField<'a> = Field<&'a str, &'a str>;
 
 macro_rules! def_alias {
@@ -98,13 +98,13 @@ macro_rules! def_alias {
 }
 
 def_alias! {
-    /// Parsed field of a package description.
+    /// Parsed field of a `.SRCINFO` file.
     ParsedField = FieldName;
-    /// Parsed field of a header of a package description.
+    /// Parsed field of a header of a `.SRCINFO` file.
     ParsedHeaderField = HeaderFieldName;
-    /// Parsed field of the `pkgbase` section of a package description.
+    /// Parsed field of the `pkgbase` section of a `.SRCINFO` file.
     ParsedBaseField = BaseOnlyFieldName;
-    /// Parsed field of any section of a package description.
+    /// Parsed field of any section of a `.SRCINFO` file.
     ParsedSectionField = SectionFieldName;
 }
 
@@ -149,7 +149,7 @@ macro_rules! def_field_name {
             $shared_variant:ident = $shared_name:literal
         )*}
     ) => {
-        /// Field name of a package description.
+        /// Field name of a `.SRCINFO` file.
         #[derive(Debug, Clone, Copy, PartialEq, Eq)] // core traits
         #[derive(AsRefStr, Display, EnumString, IntoStaticStr)] // strum traits
         #[strum(use_phf)]
@@ -159,7 +159,7 @@ macro_rules! def_field_name {
             $( #[strum(serialize = $shared_name)] $shared_variant, )*
         }
 
-        /// Header field name of a package description.
+        /// Header field name of a `.SRCINFO` file.
         #[derive(Debug, Clone, Copy, PartialEq, Eq)] // core traits
         #[derive(AsRefStr, Display, EnumString, IntoStaticStr)] // strum traits
         #[strum(use_phf)]
@@ -167,7 +167,7 @@ macro_rules! def_field_name {
             $( #[strum(serialize = $header_name)] $header_variant, )*
         }
 
-        /// Field name of the `pkgbase` section of a package description.
+        /// Field name of the `pkgbase` section of a `.SRCINFO` file.
         #[derive(Debug, Clone, Copy, PartialEq, Eq)] // core traits
         #[derive(AsRefStr, Display, EnumString, IntoStaticStr)] // strum traits
         #[strum(use_phf)]
@@ -175,7 +175,7 @@ macro_rules! def_field_name {
             $( #[strum(serialize = $base_name)] $base_variant, )*
         }
 
-        /// Field name of any section of a package description.
+        /// Field name of any section of a `.SRCINFO` file.
         #[derive(Debug, Clone, Copy, PartialEq, Eq)] // core traits
         #[derive(AsRefStr, Display, EnumString, IntoStaticStr)] // strum traits
         #[strum(use_phf)]
