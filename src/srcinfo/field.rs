@@ -71,39 +71,20 @@ impl<'a, Name> Field<Name, &'a str> {
 /// Raw string field of a `.SRCINFO` file.
 pub type RawField<'a> = Field<&'a str, &'a str>;
 
-macro_rules! def_alias {
-    ($(
-        $(#[$attrs:meta])*
-        $alias:ident = $field_name:ty;
-    )*) => {$(
-        $(#[$attrs])*
-        pub type $alias<Architecture> = Field<$field_name, Architecture>;
-
-        impl<Architecture> $alias<Architecture> {
-            /// Get the name of the field as a string slice.
-            pub fn name_str(&self) -> &'static str {
-                self.name().into()
-            }
-        }
-
-        #[doc = concat!("Convert a [`", stringify!($field_name), "`] into a [`", stringify!($alias), "`] without an architecture.")]
-        impl<Architecture> From<$field_name> for $alias<Architecture> {
-            fn from(field_name: $field_name) -> Self {
-                Field::blank().with_name(field_name).with_architecture(None)
-            }
-        }
-    )*};
+/// Parsed field of a `.SRCINFO` file.
+pub type ParsedField<Architecture> = Field<FieldName, Architecture>;
+impl<Architecture> ParsedField<Architecture> {
+    /// Get the name of the field as a string slice.
+    pub fn name_str(&self) -> &'static str {
+        self.name().into()
+    }
 }
 
-def_alias! {
-    /// Parsed field of a `.SRCINFO` file.
-    AnyField = AnyFieldName;
-    /// Parsed field of a header of a `.SRCINFO` file.
-    HeaderField = HeaderFieldName;
-    /// Parsed field of the `pkgbase` section of a `.SRCINFO` file.
-    BaseField = BaseFieldName;
-    /// Parsed field of the `pkgname` section of a `.SRCINFO` file.
-    DerivativeField = DerivativeFieldName;
+/// Convert a [`FieldName`] into a [`AnyField`] without an architecture.
+impl<Architecture> From<FieldName> for ParsedField<Architecture> {
+    fn from(field_name: FieldName) -> Self {
+        Field::blank().with_name(field_name).with_architecture(None)
+    }
 }
 
 mod name;
