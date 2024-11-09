@@ -133,7 +133,6 @@ macro_rules! def_cast {
                 }
             }
         }
-
     )*}
 }
 
