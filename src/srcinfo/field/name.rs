@@ -162,6 +162,8 @@ pub trait FieldName:
 
 impl sealed::Sealed for AnyFieldName {}
 impl FieldName for AnyFieldName {}
+impl sealed::Sealed for HeaderFieldName {}
+impl FieldName for HeaderFieldName {}
 impl sealed::Sealed for BaseFieldName {}
 impl FieldName for BaseFieldName {}
 impl sealed::Sealed for DerivativeFieldName {}
