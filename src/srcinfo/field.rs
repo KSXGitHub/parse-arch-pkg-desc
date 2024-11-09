@@ -149,7 +149,7 @@ macro_rules! def_field_name {
             $( #[strum(serialize = $header_name)] $header_variant, )*
         }
 
-        /// Field name of the `pkgbase` section a package description.
+        /// Field name of the `pkgbase` section of a package description.
         #[derive(Debug, Clone, Copy, PartialEq, Eq)] // core traits
         #[derive(AsRefStr, Display, EnumString, IntoStaticStr)] // strum traits
         #[strum(use_phf)]
@@ -157,7 +157,7 @@ macro_rules! def_field_name {
             $( #[strum(serialize = $base_name)] $base_variant, )*
         }
 
-        /// Field name of any section a package description.
+        /// Field name of any section of a package description.
         #[derive(Debug, Clone, Copy, PartialEq, Eq)] // core traits
         #[derive(AsRefStr, Display, EnumString, IntoStaticStr)] // strum traits
         #[strum(use_phf)]
