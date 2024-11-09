@@ -99,7 +99,7 @@ macro_rules! def_alias {
 
 def_alias! {
     /// Parsed field of a `.SRCINFO` file.
-    ParsedField = FieldName;
+    ParsedField = AnyFieldName;
     /// Parsed field of a header of a `.SRCINFO` file.
     ParsedHeaderField = HeaderFieldName;
     /// Parsed field of the `pkgbase` section of a `.SRCINFO` file.
@@ -152,7 +152,7 @@ macro_rules! def_field_name {
         #[derive(Debug, Clone, Copy, PartialEq, Eq)] // core traits
         #[derive(AsRefStr, Display, EnumString, IntoStaticStr)] // strum traits
         #[strum(use_phf)]
-        pub enum FieldName {
+        pub enum AnyFieldName {
             $( #[strum(serialize = $header_name)] $header_variant, )*
             $( #[strum(serialize = $base_name)] $base_variant, )*
             $( #[strum(serialize = $shared_name)] $shared_variant, )*
@@ -184,9 +184,9 @@ macro_rules! def_field_name {
         }
 
         def_cast! {
-            (FieldName HeaderFieldName) {$($header_variant)*}
-            (FieldName BaseOnlyFieldName) {$($base_variant)*}
-            (FieldName SectionFieldName) {$($base_variant)* $($shared_variant)*}
+            (AnyFieldName HeaderFieldName) {$($header_variant)*}
+            (AnyFieldName BaseOnlyFieldName) {$($base_variant)*}
+            (AnyFieldName SectionFieldName) {$($base_variant)* $($shared_variant)*}
             (SectionFieldName BaseOnlyFieldName) {$($base_variant)*}
         }
     };
