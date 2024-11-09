@@ -90,80 +90,171 @@ impl<Architecture> From<FieldName> for ParsedField<Architecture> {
     }
 }
 
-/// Field name of a package description.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)] // core traits
-#[derive(AsRefStr, Display, EnumString, IntoStaticStr)] // strum traits
-#[strum(use_phf)]
-pub enum FieldName {
-    /* SECTION HEADERS */
-    #[strum(serialize = "pkgbase")]
-    Base,
-    #[strum(serialize = "pkgname")]
-    Name,
+macro_rules! def_downcast {
+    ($(
+        $(#[$attrs:meta])*
+        $method:ident: $input:ident -> $output:ident {$($variant:ident)*}
+    )*) => {$(
+        impl $input {
+            $(#[$attrs])*
+            pub fn $method(self) -> Option<$output> {
+                match self {
+                    $($input::$variant => Some($output::$variant),)*
+                    _ => None,
+                }
+            }
+        }
 
-    /* BASE SECTION ONLY */
-    #[strum(serialize = "epoch")]
-    Epoch,
-    #[strum(serialize = "pkgrel")]
-    Release,
-    #[strum(serialize = "validpgpkeys")]
-    ValidPgpKeys,
-    #[strum(serialize = "pkgver")]
-    Version,
+        impl TryFrom<$input> for $output {
+            type Error = $input;
+            fn try_from(input: $input) -> Result<Self, Self::Error> {
+                input.$method().ok_or(input)
+            }
+        }
+    )*};
+}
 
-    /* ANY SECTION: MISC */
-    #[strum(serialize = "arch")]
-    Architecture,
-    #[strum(serialize = "backup")]
-    Backup,
-    #[strum(serialize = "changelog")]
-    ChangeLog,
-    #[strum(serialize = "pkgdesc")]
-    Description,
-    #[strum(serialize = "groups")]
-    Groups,
-    #[strum(serialize = "install")]
-    Install,
-    #[strum(serialize = "license")]
-    License,
-    #[strum(serialize = "noextract")]
-    NoExtract,
-    #[strum(serialize = "options")]
-    Options,
-    #[strum(serialize = "source")]
-    Source,
-    #[strum(serialize = "url")]
-    Url,
+macro_rules! def_upcast {
+    ($(
+        $(#[$attrs:meta])*
+        $method:ident: $input:ident -> $output:ident {$($variant:ident)*}
+    )*) => {$(
+        impl $input {
+            $(#[$attrs])*
+            pub fn $method(self) -> $output {
+                match self {
+                    $($input::$variant => $output::$variant,)*
+                }
+            }
+        }
 
-    /* ANY SECTION: DEPENDENCIES */
-    #[strum(serialize = "depends")]
-    Dependencies,
-    #[strum(serialize = "checkdepends")]
-    CheckDependencies,
-    #[strum(serialize = "makedepends")]
-    MakeDependencies,
-    #[strum(serialize = "optdepends")]
-    OptionalDependencies,
-    #[strum(serialize = "provides")]
-    Provides,
-    #[strum(serialize = "conflicts")]
-    Conflicts,
-    #[strum(serialize = "replaces")]
-    Replaces,
+        impl From<$input> for $output {
+            fn from(input: $input) -> Self {
+                input.$method()
+            }
+        }
+    )*};
+}
 
-    /* ANY SECTION: CHECKSUMS */
-    #[strum(serialize = "md5sums")]
-    Md5Checksums,
-    #[strum(serialize = "sha1sums")]
-    Sha1Checksums,
-    #[strum(serialize = "sha224sums")]
-    Sha224Checksums,
-    #[strum(serialize = "sha256sums")]
-    Sha256Checksums,
-    #[strum(serialize = "sha384sums")]
-    Sha384Checksums,
-    #[strum(serialize = "sha512sums")]
-    Sha512Checksums,
+macro_rules! def_field_name {
+    (
+        header {$(
+            $header_variant:ident = $header_name:literal
+        )*}
+        base {$(
+            $base_variant:ident = $base_name:literal
+        )*}
+        shared {$(
+            $shared_variant:ident = $shared_name:literal
+        )*}
+    ) => {
+        /// Field name of a package description.
+        #[derive(Debug, Clone, Copy, PartialEq, Eq)] // core traits
+        #[derive(AsRefStr, Display, EnumString, IntoStaticStr)] // strum traits
+        #[strum(use_phf)]
+        pub enum FieldName {
+            $( #[strum(serialize = $header_name)] $header_variant, )*
+            $( #[strum(serialize = $base_name)] $base_variant, )*
+            $( #[strum(serialize = $shared_name)] $shared_variant, )*
+        }
+        def_downcast! {
+            /// Convert a [`FieldName`] into a [`HeaderFieldName`].
+            into_header: FieldName -> HeaderFieldName {$($header_variant)*}
+            /// Convert a [`FieldName`] into a [`BaseOnlyFieldName`].
+            into_base_only: FieldName -> BaseOnlyFieldName {$($base_variant)*}
+            /// Convert a [`FieldName`] into a [`SectionFieldName`].
+            into_section: FieldName -> SectionFieldName {$($base_variant)* $($shared_variant)*}
+        }
+
+        /// Header field name of a package description.
+        #[derive(Debug, Clone, Copy, PartialEq, Eq)] // core traits
+        #[derive(AsRefStr, Display, EnumString, IntoStaticStr)] // strum traits
+        #[strum(use_phf)]
+        pub enum HeaderFieldName {
+            $( #[strum(serialize = $header_name)] $header_variant, )*
+        }
+        def_upcast! {
+            /// Convert a [`HeaderFieldName`] into a [`FieldName`].
+            into_field_name: HeaderFieldName -> FieldName {$($header_variant)*}
+        }
+
+        /// Field name of the `pkgbase` section a package description.
+        #[derive(Debug, Clone, Copy, PartialEq, Eq)] // core traits
+        #[derive(AsRefStr, Display, EnumString, IntoStaticStr)] // strum traits
+        #[strum(use_phf)]
+        pub enum BaseOnlyFieldName {
+            $( #[strum(serialize = $base_name)] $base_variant, )*
+        }
+        def_upcast! {
+            /// Convert a [`BaseOnlyFieldName`] into a [`FieldName`].
+            into_field_name: BaseOnlyFieldName -> FieldName {$($base_variant)*}
+            /// Convert a [`BaseOnlyFieldName`] into a [`SectionFieldName`].
+            into_section: BaseOnlyFieldName -> SectionFieldName {$($base_variant)*}
+        }
+
+        /// Field name of any section a package description.
+        #[derive(Debug, Clone, Copy, PartialEq, Eq)] // core traits
+        #[derive(AsRefStr, Display, EnumString, IntoStaticStr)] // strum traits
+        #[strum(use_phf)]
+        pub enum SectionFieldName {
+            $( #[strum(serialize = $base_name)] $base_variant, )*
+            $( #[strum(serialize = $shared_name)] $shared_variant, )*
+        }
+        def_upcast! {
+            /// Convert a [`SectionFieldName`] into a [`FieldName`].
+            into_field_name: SectionFieldName -> FieldName {$($base_variant)* $($shared_variant)*}
+        }
+        def_downcast! {
+            /// Convert a [`SectionFieldName`] into a [`BaseOnlyFieldName`].
+            into_base_only: SectionFieldName -> BaseOnlyFieldName {$($base_variant)*}
+        }
+    };
+}
+
+def_field_name! {
+    header {
+        Base = "pkgbase"
+        Name = "pkgname"
+    }
+
+    base {
+        Epoch = "epoch"
+        Release = "pkgrel"
+        ValidPgpKeys = "validpgpkeys"
+        Version = "pkgver"
+    }
+
+    shared {
+        /* MISC */
+        Architecture = "arch"
+        Backup = "backup"
+        ChangeLog = "changelog"
+        Description = "pkgdesc"
+        Groups = "groups"
+        Install = "install"
+        License = "license"
+        NoExtract = "noextract"
+        Options = "options"
+        Source = "source"
+        Url = "url"
+
+        /* DEPENDENCIES */
+        Dependencies = "depends"
+        CheckDependencies = "checkdepends"
+        MakeDependencies = "makedepends"
+        OptionalDependencies = "optdepends"
+        Provides = "provides"
+        Conflicts = "conflicts"
+        Replaces = "replaces"
+
+        /* CHECKSUMS */
+        Md5Checksums = "md5sums"
+        Sha1Checksums = "sha1sums"
+        Sha224Checksums = "sha224sums"
+        Sha256Checksums = "sha256sums"
+        Sha384Checksums = "sha384sums"
+        Sha512Checksums = "sha512sums"
+    }
 }
 
 mod parse;
