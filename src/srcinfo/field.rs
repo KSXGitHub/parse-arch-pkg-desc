@@ -103,13 +103,13 @@ macro_rules! def_alias {
 
 def_alias! {
     /// Parsed field of a `.SRCINFO` file.
-    ParsedField = AnyFieldName;
+    AnyField = AnyFieldName;
     /// Parsed field of a header of a `.SRCINFO` file.
-    ParsedHeaderField = HeaderFieldName;
+    HeaderField = HeaderFieldName;
     /// Parsed field of the `pkgbase` section of a `.SRCINFO` file.
-    ParsedBaseField = BaseOnlyFieldName;
+    BaseOnlyField = BaseOnlyFieldName;
     /// Parsed field of any section of a `.SRCINFO` file.
-    ParsedSectionField = SectionFieldName;
+    SectionField = SectionFieldName;
 }
 
 macro_rules! def_cast {
