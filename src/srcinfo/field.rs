@@ -73,21 +73,39 @@ impl<'a, Name> Field<Name, &'a str> {
 /// Raw string field of a package description.
 pub type RawField<'a> = Field<&'a str, &'a str>;
 
-/// Parsed field of a package description.
-pub type ParsedField<Architecture> = Field<FieldName, Architecture>;
+macro_rules! def_alias {
+    ($(
+        $(#[$attrs:meta])*
+        $alias:ident = $field_name:ty;
+    )*) => {$(
+        $(#[$attrs])*
+        pub type $alias<Architecture> = Field<$field_name, Architecture>;
 
-impl<Architecture> ParsedField<Architecture> {
-    /// Get the name of the field as a string slice.
-    pub fn name_str(&self) -> &'static str {
-        self.name().into()
-    }
+        impl<Architecture> $alias<Architecture> {
+            /// Get the name of the field as a string slice.
+            pub fn name_str(&self) -> &'static str {
+                self.name().into()
+            }
+        }
+
+        #[doc = concat!("Convert a [`", stringify!($field_name), "`] into a [`", stringify!($alias), "`] without an architecture.")]
+        impl<Architecture> From<$field_name> for $alias<Architecture> {
+            fn from(field_name: $field_name) -> Self {
+                Field::blank().with_name(field_name).with_architecture(None)
+            }
+        }
+    )*};
 }
 
-/// Convert a [`FieldName`] into a [`ParsedField`] without an architecture.
-impl<Architecture> From<FieldName> for ParsedField<Architecture> {
-    fn from(value: FieldName) -> Self {
-        Field::blank().with_name(value).with_architecture(None)
-    }
+def_alias! {
+    /// Parsed field of a package description.
+    ParsedField = FieldName;
+    /// Parsed field of a header of a package description.
+    ParsedHeaderField = HeaderFieldName;
+    /// Parsed field of the `pkgbase` section of a package description.
+    ParsedBaseField = BaseOnlyFieldName;
+    /// Parsed field of any section of a package description.
+    ParsedSectionField = SectionFieldName;
 }
 
 macro_rules! def_cast {
