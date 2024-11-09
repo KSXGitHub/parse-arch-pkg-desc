@@ -263,7 +263,7 @@ pub trait FieldName:
     + Into<AnyFieldName>
 {
     /// Convert the field name into an instance of [`AnyFieldName`]
-    fn to_any(self) -> AnyFieldName {
+    fn into_any(self) -> AnyFieldName {
         self.into()
     }
 }
