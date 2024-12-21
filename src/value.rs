@@ -163,30 +163,58 @@ macro_rules! def_list_wrappers {
 }
 
 def_str_wrappers! {
-    /// Type of value of `FILENAME`.
+    /// Type of value of `FILENAME`, `noextract`, and `install`.
     FileName;
-    /// Type of value of `NAME`.
+    /// Type of value of `NAME` and `pkgname`.
     Name;
-    /// Type of value of `BASE`.
+    /// Type of value of `BASE` and `pkgbase`.
     Base;
     /// Type of value of `VERSION`.
     Version;
-    /// Type of value of `DESC`.
+    /// Type of value of `pkgver`.
+    UpstreamVersion;
+    /// Type of value of `DESC` and `pkgdesc`.
     Description;
     /// Type of value of `URL`.
     Url;
     /// Type of value of `PACKAGER`.
     Packager;
+    /// Type of value of `changelog`.
+    ChangeLog;
+    /// Type of value of `options`.
+    BuildOption;
+    /// Type of value of `backup`.
+    FilePath;
+    /// Type of value of `source`.
+    Source;
+    /// Type of value of `validpgpkeys`.
+    PgpKey;
 }
 
 def_hex_wrappers! {
-    /// Type of value of `MD5SUM`.
+    /// Type of value of `MD5SUM` and `md5sums`.
     Hex128 {
         size = 16;
     }
-    /// Type of value of `SHA256SUM`.
+    /// Type of value of `sha1sums`.
+    Hex160 {
+        size = 20;
+    }
+    /// Type of value of `sha224sums`.
+    Hex224 {
+        size = 28;
+    }
+    /// Type of value of `SHA256SUM` and `sha256sums`.
     Hex256 {
         size = 32;
+    }
+    /// Type of value of `sha384sums`.
+    Hex384 {
+        size = 48;
+    }
+    /// Type of value of `sha512sums`.
+    Hex512 {
+        size = 64;
     }
 }
 
@@ -200,6 +228,10 @@ def_num_wrappers! {
     Size = u64;
     /// Type of value of `BUILDDATE`.
     Timestamp = u64;
+    /// Type of value of `epoch`.
+    Epoch = u64;
+    /// Type of value of `pkgrel`.
+    Release = u64; // TODO: change this to allow `a.b` syntax
 }
 
 def_list_wrappers! {
@@ -207,7 +239,7 @@ def_list_wrappers! {
     GroupList {
         /// [Iterator] type of [`GroupList`].
         Iter = GroupIterator;
-        /// Type of [iterator item](Iterator::Item) of [`GroupList`].
+        /// Type of [iterator item](Iterator::Item) of [`GroupList`] and value of `groups`.
         Item = Group;
     }
 
@@ -215,7 +247,7 @@ def_list_wrappers! {
     LicenseList {
         /// [Iterator] type of [`LicenseList`].
         Iter = LicenseIterator;
-        /// Type of [iterator item](Iterator::Item) of [`LicenseList`].
+        /// Type of [iterator item](Iterator::Item) of [`LicenseList`] and value of `license`.
         Item = License;
     }
 
@@ -223,7 +255,7 @@ def_list_wrappers! {
     ArchitectureList {
         /// [Iterator] type of [`ArchitectureList`].
         Iter = ArchitectureIterator;
-        /// Type of [iterator item](Iterator::Item) of [`ArchitectureList`].
+        /// Type of [iterator item](Iterator::Item) of [`ArchitectureList`] and value of `arch`.
         Item = Architecture;
     }
 
